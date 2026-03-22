@@ -3,8 +3,8 @@
 # killswitch.sh — Internet-Killswitch für Draytek Vigor 130 (VDSL)
 #
 # Verwendung:
-#   ./killswitch.sh status    — "active", "blocked" oder "syncing"
-#   ./killswitch.sh details   — VDSL-Verbindungsdetails anzeigen
+#   ./killswitch.sh status    — "active" oder "blocked" (schnell)
+#   ./killswitch.sh details   — VDSL-Verbindungsdetails vom Router
 #   ./killswitch.sh on        — Internet deaktivieren  (DSL → Idle)
 #   ./killswitch.sh off       — Internet wiederherstellen (DSL-Neustart)
 #
@@ -18,7 +18,6 @@ ROUTER_PASS="admin"
 
 die() { echo "FEHLER: $*" >&2; exit 1; }
 
-# Telnet-Befehl senden und Ausgabe zurückgeben.
 telnet_cmd() {
     local cmd="$1"
     local timeout="${2:-5}"
@@ -34,7 +33,6 @@ telnet_cmd() {
     } | telnet "$ROUTER_IP" 2>/dev/null
 }
 
-# SSH-Variante (Fallback). Vigor 130 braucht ältere Algorithmen.
 ssh_cmd() {
     local cmd="$1"
     sshpass -p "$ROUTER_PASS" \
@@ -47,7 +45,6 @@ ssh_cmd() {
             "$ROUTER_USER@$ROUTER_IP" "$cmd" 2>/dev/null
 }
 
-# Befehl senden — versucht zuerst SSH, dann Telnet.
 send_cmd() {
     local cmd="$1"
     local timeout="${2:-5}"
@@ -60,91 +57,59 @@ send_cmd() {
     fi
 }
 
-# DSL-State vom Router abfragen (SHOWTIME, IDLE, HANDSHAKE, TRAINING, ...)
-get_dsl_state() {
-    send_cmd "vdsl status" 3 | grep -ioE '(SHOWTIME|IDLE|HANDSHAKE|TRAINING|INITIALIZING|EXCEPTION)' | head -1
-}
-
-# --- status ---
-#   active  — DSL synchronisiert, Internet erreichbar
-#   syncing — DSL synchronisiert gerade (Handshake/Training) oder
-#             Router erreichbar aber Internet noch nicht da
-#   blocked — DSL im Idle-Modus oder Router nicht erreichbar
+# =====================================================================
+# --- status — ein einzelner Ping, so schnell wie möglich ---
+# =====================================================================
 
 do_status() {
-    local dsl_state
-    dsl_state=$(get_dsl_state)
-
-    if ping -c 1 -W 2 8.8.8.8 &>/dev/null; then
+    if ping -c 1 -W 1 8.8.8.8 &>/dev/null; then
         echo "active"
-        return
+    else
+        echo "blocked"
     fi
-
-    # Kein Internet — liegt es an Idle oder an laufendem Resync?
-    case "${dsl_state^^}" in
-        SHOWTIME)
-            # DSL steht, aber Internet geht (noch) nicht → Übergang
-            echo "syncing"
-            ;;
-        IDLE)
-            echo "blocked"
-            ;;
-        HANDSHAKE|TRAINING|INITIALIZING)
-            echo "syncing"
-            ;;
-        "")
-            # Keine Antwort vom Router → vermutlich rebootet gerade
-            if ping -c 1 -W 2 "$ROUTER_IP" &>/dev/null; then
-                echo "syncing"
-            else
-                echo "syncing"  # Router startet noch neu
-            fi
-            ;;
-        *)
-            echo "syncing"
-            ;;
-    esac
 }
 
-# --- details ---
+# =====================================================================
+# --- details — VDSL-Status vom Router ---
+# =====================================================================
 
 do_details() {
-    echo "=== VDSL-Details (Vigor 130 @ $ROUTER_IP) ==="
-    echo ""
     send_cmd "vdsl status more" 5
 }
 
+# =====================================================================
 # --- on (Internet deaktivieren) ---
+# =====================================================================
 
 do_on() {
-    echo "Internet wird deaktiviert (DSL → Idle) ..."
-    send_cmd "vdsl idle on" 3
-    sleep 3
+    send_cmd "vdsl idle on" 3 >/dev/null
+    sleep 2
     do_status
 }
 
+# =====================================================================
 # --- off (Internet wiederherstellen) ---
+# =====================================================================
 
 do_off() {
-    echo "Internet wird wiederhergestellt (DSL-Neustart) ..."
-    send_cmd "vdsl reboot" 3
-    echo "DSL synchronisiert neu — das dauert 30–90 Sekunden."
-    echo ""
-    echo -n "Warte "
-    for i in $(seq 1 12); do
-        sleep 10
-        if ping -c 1 -W 2 8.8.8.8 &>/dev/null; then
+    send_cmd "vdsl reboot" 3 >/dev/null
+    echo -n "syncing"
+    for _ in $(seq 1 18); do
+        sleep 5
+        if ping -c 1 -W 1 8.8.8.8 &>/dev/null; then
             echo ""
-            echo "active (nach ~$((i * 10))s)"
+            echo "active"
             return 0
         fi
         echo -n "."
     done
     echo ""
-    echo "blocked (nach 120s noch kein Internet — DSL-LED prüfen)"
+    echo "blocked"
 }
 
+# =====================================================================
 # --- Main ---
+# =====================================================================
 
 case "${1,,}" in
     status)   do_status ;;
@@ -154,7 +119,7 @@ case "${1,,}" in
     *)
         echo "Verwendung: $0 {status|details|on|off}"
         echo ""
-        echo "  status   — \"active\", \"blocked\" oder \"syncing\""
+        echo "  status   — \"active\" oder \"blocked\""
         echo "  details  — VDSL-Verbindungsdetails anzeigen"
         echo "  on       — Internet deaktivieren  (Killswitch EIN)"
         echo "  off      — Internet wiederherstellen (Killswitch AUS)"
