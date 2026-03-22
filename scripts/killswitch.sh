@@ -10,12 +10,12 @@ STATUS_FILE="$SCRIPT_DIR/.killswitch_status"
 
 if [[ "$ACTION" == "on" ]]; then
     # Blockiere Internet durch ungültigen DNS-Server
-    systemctl stop named
+    sudo systemctl stop named
     echo "blocked" > "$STATUS_FILE"
     echo "INTERNET BLOCKED"
 elif [[ "$ACTION" == "off" ]]; then
     # Stelle Internet wieder her
-    systemctl start named
+    sudo systemctl start named
     echo "active" > "$STATUS_FILE"
     echo "INTERNET ACTIVE"
 elif [[ "$ACTION" == "status" ]]; then
