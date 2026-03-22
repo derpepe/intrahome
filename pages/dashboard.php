@@ -1,6 +1,6 @@
 <?php
-$defcon = ($status === 'OFFLINE') ? 1 : 5;
-$defcon_color = ($defcon === 1) ? 'var(--neon-pink)' : 'var(--neon-cyan)';
+$defcon = ($status === 'OFFLINE') ? 3 : 5;
+$defcon_color = ($defcon === 3) ? 'var(--neon-pink)' : 'var(--neon-cyan)';
 ?>
 <div class="dashboard-grid">
     <div class="dashboard-card" style="border-color: <?= $defcon_color ?>;">
