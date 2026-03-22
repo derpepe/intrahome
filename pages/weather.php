@@ -124,6 +124,22 @@
         font-size: 16px;
         color: #aaa;
     }
+
+    .uv-scale-container {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        margin: 8px 0;
+        overflow: hidden;
+    }
+
+    .uv-scale-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--neon-green), var(--neon-yellow), #ffa500, var(--neon-pink), #ff0000);
+        transition: width 0.5s ease-out;
+    }
 </style>
 
 <?php
@@ -172,7 +188,9 @@ $rooms = $config['ecowitt']['room_names'] ?? [
                 </div>
                 <div class="data-block">
                     <span class="data-label">UV INDEX</span>
-                    <span class="data-val" id="weather-uvi">--</span>
+                    <div class="uv-scale-container">
+                        <div class="uv-scale-bar" id="weather-uvi-bar" style="width: 0%;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -266,7 +284,13 @@ $rooms = $config['ecowitt']['room_names'] ?? [
                         document.getElementById('weather-solar').innerText = data.data.solar_and_uvi.solar.value + " " + data.data.solar_and_uvi.solar.unit;
                     }
                     if (data.data.solar_and_uvi && data.data.solar_and_uvi.uvi) {
-                        document.getElementById('weather-uvi').innerText = data.data.solar_and_uvi.uvi.value;
+                        let uvi = parseFloat(data.data.solar_and_uvi.uvi.value);
+                        let uviPercent = Math.min((uvi / 11) * 100, 100);
+                        let bar = document.getElementById('weather-uvi-bar');
+                        if (bar) {
+                            bar.style.width = uviPercent + '%';
+                            // We can use a tooltip or just rely on the scale.
+                        }
                     }
                 } catch (e) { console.log(e); }
             })
