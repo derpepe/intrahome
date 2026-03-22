@@ -3,7 +3,7 @@
 # killswitch.sh — Internet-Killswitch für Draytek Vigor 130 (VDSL)
 #
 # Verwendung:
-#   ./killswitch.sh status    — "active" oder "blocked"
+#   ./killswitch.sh status    — "active", "blocked" oder "syncing"
 #   ./killswitch.sh details   — VDSL-Verbindungsdetails anzeigen
 #   ./killswitch.sh on        — Internet deaktivieren  (DSL → Idle)
 #   ./killswitch.sh off       — Internet wiederherstellen (DSL-Neustart)
@@ -60,14 +60,50 @@ send_cmd() {
     fi
 }
 
+# DSL-State vom Router abfragen (SHOWTIME, IDLE, HANDSHAKE, TRAINING, ...)
+get_dsl_state() {
+    send_cmd "vdsl status" 3 | grep -ioE '(SHOWTIME|IDLE|HANDSHAKE|TRAINING|INITIALIZING|EXCEPTION)' | head -1
+}
+
 # --- status ---
+#   active  — DSL synchronisiert, Internet erreichbar
+#   syncing — DSL synchronisiert gerade (Handshake/Training) oder
+#             Router erreichbar aber Internet noch nicht da
+#   blocked — DSL im Idle-Modus oder Router nicht erreichbar
 
 do_status() {
+    local dsl_state
+    dsl_state=$(get_dsl_state)
+
     if ping -c 1 -W 2 8.8.8.8 &>/dev/null; then
         echo "active"
-    else
-        echo "blocked"
+        return
     fi
+
+    # Kein Internet — liegt es an Idle oder an laufendem Resync?
+    case "${dsl_state^^}" in
+        SHOWTIME)
+            # DSL steht, aber Internet geht (noch) nicht → Übergang
+            echo "syncing"
+            ;;
+        IDLE)
+            echo "blocked"
+            ;;
+        HANDSHAKE|TRAINING|INITIALIZING)
+            echo "syncing"
+            ;;
+        "")
+            # Keine Antwort vom Router → vermutlich rebootet gerade
+            if ping -c 1 -W 2 "$ROUTER_IP" &>/dev/null; then
+                echo "syncing"
+            else
+                echo "syncing"  # Router startet noch neu
+            fi
+            ;;
+        *)
+            echo "syncing"
+            ;;
+    esac
 }
 
 # --- details ---
@@ -118,7 +154,7 @@ case "${1,,}" in
     *)
         echo "Verwendung: $0 {status|details|on|off}"
         echo ""
-        echo "  status   — \"active\" oder \"blocked\""
+        echo "  status   — \"active\", \"blocked\" oder \"syncing\""
         echo "  details  — VDSL-Verbindungsdetails anzeigen"
         echo "  on       — Internet deaktivieren  (Killswitch EIN)"
         echo "  off      — Internet wiederherstellen (Killswitch AUS)"
