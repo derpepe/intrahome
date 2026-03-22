@@ -23,38 +23,29 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow: hidden;
     /* Subtle dot grid */
     background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
 }
 
-.watchface {
+.dashboard {
     position: relative;
-    width: 400px;
-    height: 400px;
+    width: 100%;
+    min-height: 100vh;
     background: radial-gradient(circle at center, #111 0%, #000 100%);
-    border-radius: 50%;
-    border: 8px solid #222;
-    box-shadow: 
-        0 0 20px rgba(0, 255, 255, 0.2), 
-        inset 0 0 30px rgba(0, 0, 0, 0.8),
-        0 0 2px 2px #0a0a0a;
+    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.9);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 30px;
-    overflow: hidden;
+    padding: 5vh 5vw;
 }
 
 /* Status-dependent glow */
-body.status-online .watchface {
-    box-shadow: 0 0 30px rgba(57, 255, 20, 0.3), inset 0 0 40px rgba(0, 0, 0, 0.9);
-    border-color: #1a2f1a;
+body.status-online .dashboard {
+    box-shadow: inset 0 0 150px rgba(57, 255, 20, 0.15), inset 0 0 40px rgba(0, 0, 0, 0.9);
 }
-body.status-offline .watchface {
-    box-shadow: 0 0 30px rgba(255, 0, 127, 0.4), inset 0 0 40px rgba(0, 0, 0, 0.9);
-    border-color: #3f1122;
+body.status-offline .dashboard {
+    box-shadow: inset 0 0 150px rgba(255, 0, 127, 0.2), inset 0 0 40px rgba(0, 0, 0, 0.9);
 }
 
 /* Grid overlay for tech look */
@@ -64,7 +55,7 @@ body.status-offline .watchface {
     background: 
         linear-gradient(rgba(40,40,40,0.2) 1px, transparent 1px),
         linear-gradient(90deg, rgba(40,40,40,0.2) 1px, transparent 1px);
-    background-size: 15px 15px;
+    background-size: 25px 25px;
     pointer-events: none;
     z-index: 1;
     opacity: 0.5;
@@ -74,11 +65,10 @@ body.status-offline .watchface {
     z-index: 2;
     display: flex;
     justify-content: space-between;
-    font-size: 10px;
+    font-size: clamp(16px, 2vw, 24px);
     text-shadow: 0 0 5px var(--neon-cyan);
     color: var(--neon-cyan);
-    letter-spacing: 1px;
-    padding-top: 10px;
+    letter-spacing: 2px;
 }
 
 .brand {
@@ -93,42 +83,43 @@ body.status-offline .watchface {
     text-align: center;
     flex-grow: 1;
     justify-content: center;
+    padding: 40px 0;
 }
 
 .status-panel {
-    margin-bottom: 20px;
+    margin-bottom: 40px;
 }
 
 .label {
-    font-size: 10px;
+    font-size: clamp(14px, 1.5vw, 18px);
     color: #888;
-    letter-spacing: 2px;
-    margin-bottom: 5px;
+    letter-spacing: 4px;
+    margin-bottom: 15px;
 }
 
 .status-value {
     font-family: var(--font-heading);
-    font-size: 42px;
+    font-size: clamp(60px, 10vw, 150px);
     font-weight: 900;
     text-shadow: 2px 2px 0px rgba(255,255,255,0.2);
 }
 
 body.status-online .status-value {
     color: var(--neon-green);
-    text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+    text-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
 }
 
 body.status-offline .status-value {
     color: var(--neon-pink);
-    text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink);
+    text-shadow: 0 0 20px var(--neon-pink), 0 0 40px var(--neon-pink);
 }
 
 .system-message {
-    font-size: 11px;
-    margin-bottom: 25px;
+    font-size: clamp(14px, 1.8vw, 22px);
+    margin-bottom: 50px;
     color: var(--neon-yellow);
     text-transform: uppercase;
-    height: 14px;
+    min-height: 24px;
 }
 
 .blink {
@@ -144,13 +135,13 @@ body.status-offline .status-value {
 }
 
 .controls {
-    margin-bottom: 25px;
+    margin-bottom: 50px;
 }
 
 .btn {
     background: transparent;
     border: 2px solid;
-    padding: 10px 20px;
+    padding: 20px 50px;
     cursor: pointer;
     font-family: var(--font-sys);
     display: flex;
@@ -160,7 +151,7 @@ body.status-offline .status-value {
     outline: none;
     position: relative;
     overflow: hidden;
-    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
 }
 
 .btn::before {
@@ -183,59 +174,69 @@ body.status-offline .status-value {
 .btn-kill {
     border-color: var(--neon-pink);
     color: var(--neon-pink);
-    box-shadow: 0 0 10px rgba(255,0,127,0.2) inset;
+    box-shadow: 0 0 20px rgba(255,0,127,0.2) inset;
 }
 
 .btn-kill:hover {
     background: rgba(255,0,127,0.2);
-    box-shadow: 0 0 20px rgba(255,0,127,0.5) inset, 0 0 10px rgba(255,0,127,0.8);
+    box-shadow: 0 0 30px rgba(255,0,127,0.5) inset, 0 0 20px rgba(255,0,127,0.8);
 }
 
-.btn-kill .btn-text { text-shadow: 0 0 5px var(--neon-pink); }
+.btn-kill .btn-text { text-shadow: 0 0 10px var(--neon-pink); }
 
 .btn-restore {
     border-color: var(--neon-cyan);
     color: var(--neon-cyan);
-    box-shadow: 0 0 10px rgba(0,255,255,0.2) inset;
+    box-shadow: 0 0 20px rgba(0,255,255,0.2) inset;
 }
 
 .btn-restore:hover {
     background: rgba(0,255,255,0.2);
-    box-shadow: 0 0 20px rgba(0,255,255,0.5) inset, 0 0 10px rgba(0,255,255,0.8);
+    box-shadow: 0 0 30px rgba(0,255,255,0.5) inset, 0 0 20px rgba(0,255,255,0.8);
 }
-.btn-restore .btn-text { text-shadow: 0 0 5px var(--neon-cyan); }
+.btn-restore .btn-text { text-shadow: 0 0 10px var(--neon-cyan); }
 
 
 .btn-text {
-    font-size: 14px;
+    font-size: clamp(20px, 2.5vw, 36px);
     font-weight: bold;
 }
 
 .btn-subtext {
-    font-size: 9px;
+    font-size: clamp(12px, 1.2vw, 18px);
     opacity: 0.7;
-    margin-top: 3px;
+    margin-top: 5px;
 }
 
 .telemetry {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     width: 100%;
-    margin-top: 10px;
+    max-width: 900px;
+    margin-top: 20px;
+    gap: 30px;
 }
 
 .data-block {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 20px 40px;
+    flex: 1;
 }
 
 .data-label {
-    font-size: 8px;
-    color: #666;
+    font-size: clamp(12px, 1.2vw, 16px);
+    color: #888;
+    margin-bottom: 5px;
+    letter-spacing: 2px;
 }
 
 .data-val {
-    font-size: 12px;
+    font-size: clamp(20px, 2.5vw, 36px);
     color: var(--text-main);
     font-weight: bold;
 }
@@ -246,19 +247,18 @@ body.status-offline .status-value {
     justify-content: space-between;
     align-items: flex-end;
     color: #555;
-    font-size: 9px;
-    padding-bottom: 10px;
+    font-size: clamp(12px, 1.5vw, 18px);
 }
 
 .bar-chart {
     display: flex;
     align-items: flex-end;
-    gap: 3px;
-    height: 15px;
+    gap: 6px;
+    height: 30px;
 }
 
 .bar {
-    width: 4px;
+    width: 8px;
     background: var(--neon-cyan);
     opacity: 0.7;
 }
@@ -276,7 +276,7 @@ body.status-offline .status-value {
 
 body.status-offline .bar {
     background: var(--neon-pink);
-    animation-duration: 0.5s; /* faster when offline/alert */
+    animation-duration: 0.5s;
 }
 
 /* Glitch effect for status */
@@ -295,15 +295,15 @@ body.status-offline .bar {
 }
 
 .glitch::before {
-    left: 2px;
-    text-shadow: -1px 0 red;
+    left: 3px;
+    text-shadow: -2px 0 red;
     clip: rect(44px, 450px, 56px, 0);
     animation: glitch-anim 5s infinite linear alternate-reverse;
 }
 
 .glitch::after {
-    left: -2px;
-    text-shadow: -1px 0 blue;
+    left: -3px;
+    text-shadow: -2px 0 blue;
     clip: rect(44px, 450px, 56px, 0);
     animation: glitch-anim2 5s infinite linear alternate-reverse;
 }
