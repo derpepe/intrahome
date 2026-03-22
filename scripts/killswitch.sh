@@ -10,22 +10,12 @@ STATUS_FILE="$SCRIPT_DIR/.killswitch_status"
 
 if [[ "$ACTION" == "on" ]]; then
     # Blockiere Internet durch ungültigen DNS-Server
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        networksetup -setdnsservers Wi-Fi 127.0.0.1 > /dev/null 2>&1
-    else
-        # Fallback für Linux (simuliert für jetzt)
-        echo "nameserver 127.0.0.1" > /tmp/resolv.conf.blocked
-    fi
+    systemctl stop named
     echo "blocked" > "$STATUS_FILE"
     echo "INTERNET BLOCKED"
 elif [[ "$ACTION" == "off" ]]; then
     # Stelle Internet wieder her
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        networksetup -setdnsservers Wi-Fi empty > /dev/null 2>&1
-    else
-        # Fallback
-        echo "nameserver 8.8.8.8" > /tmp/resolv.conf.blocked
-    fi
+    systemctl start named
     echo "active" > "$STATUS_FILE"
     echo "INTERNET ACTIVE"
 elif [[ "$ACTION" == "status" ]]; then
