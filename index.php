@@ -36,8 +36,11 @@ $status = trim($statusOutput) === "blocked" ? "OFFLINE" : "ONLINE";
 <div class="app-layout">
     <aside class="sidebar">
         <div class="sidebar-header">
-            <div class="brand">INTRAHOME</div>
-            <div class="brand-sub" style="font-size: 10px; color: var(--neon-cyan); letter-spacing: 2px;">CORE SYSTEM</div>
+            <div class="brand-container">
+                <div class="brand">INTRAHOME</div>
+                <div class="brand-sub" style="font-size: 10px; color: var(--neon-cyan); letter-spacing: 2px;">CORE SYSTEM</div>
+            </div>
+            <button class="mobile-menu-toggle" id="menuToggle">[ M E N U ]</button>
         </div>
         
         <nav class="main-nav">
@@ -84,6 +87,22 @@ $status = trim($statusOutput) === "blocked" ? "OFFLINE" : "ONLINE";
 </div>
 
 <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const mainNav = document.querySelector('.main-nav');
+    
+    if(menuToggle && mainNav) {
+        menuToggle.addEventListener('click', () => {
+            mainNav.classList.toggle('nav-open');
+            if(mainNav.classList.contains('nav-open')) {
+                menuToggle.innerText = '[ X ]';
+                menuToggle.classList.add('active');
+            } else {
+                menuToggle.innerText = '[ M E N U ]';
+                menuToggle.classList.remove('active');
+            }
+        });
+    }
+
     function updateClock() {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString('de-DE', { hour12: false });
