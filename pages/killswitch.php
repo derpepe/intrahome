@@ -65,6 +65,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btnText) btnText.innerText = "PROCESSING...";
             if (btnSub) btnSub.innerText = ">> PLEASE WAIT";
             
+            const sysMsg = document.querySelector('.system-message');
+            if (sysMsg) {
+                sysMsg.innerText = ">> UPLINK PENDING <<";
+                sysMsg.classList.add('blink');
+            }
+            
+            const statusVal = document.querySelector('.status-value');
+            if (statusVal) {
+                statusVal.innerText = "PENDING";
+                statusVal.dataset.text = "PENDING";
+                statusVal.style.color = "var(--neon-yellow)";
+                statusVal.style.textShadow = "0 0 20px var(--neon-yellow)";
+            }
+            
             const formData = new FormData(form);
             fetch(window.location.href, {
                 method: 'POST',
