@@ -80,7 +80,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 1000);
             } else {
                 if (btnText) btnText.innerText = "PROCESSING...";
-                if (btnSub) btnSub.innerText = ">> PLEASE WAIT";
+                let counter = 20;
+                if (btnSub) btnSub.innerText = ">> T-" + counter + "s UNTIL BLACKOUT";
+                
+                const countdownInterval = setInterval(() => {
+                    counter--;
+                    if (btnSub) {
+                        if (counter >= 0) {
+                            btnSub.innerText = ">> T-" + counter + "s UNTIL BLACKOUT";
+                        } else {
+                            btnSub.innerText = ">> T+" + Math.abs(counter) + "s EXECUTING...";
+                        }
+                    }
+                }, 1000);
             }
             
             const sysMsg = document.querySelector('.system-message');
