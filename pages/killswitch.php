@@ -62,8 +62,25 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const btnText = button.querySelector('.btn-text');
             const btnSub = button.querySelector('.btn-subtext');
-            if (btnText) btnText.innerText = "PROCESSING...";
-            if (btnSub) btnSub.innerText = ">> PLEASE WAIT";
+            
+            if (actionInput.value === 'off') {
+                if (btnText) btnText.innerText = "PENDING...";
+                let counter = 120;
+                if (btnSub) btnSub.innerText = ">> T-" + counter + "s UNTIL SHOWTIME";
+                
+                const countdownInterval = setInterval(() => {
+                    counter--;
+                    if (counter >= 0 && btnSub) {
+                        btnSub.innerText = ">> T-" + counter + "s UNTIL SHOWTIME";
+                    }
+                    if (counter < 0) {
+                        clearInterval(countdownInterval);
+                    }
+                }, 1000);
+            } else {
+                if (btnText) btnText.innerText = "PROCESSING...";
+                if (btnSub) btnSub.innerText = ">> PLEASE WAIT";
+            }
             
             const sysMsg = document.querySelector('.system-message');
             if (sysMsg) {
