@@ -36,7 +36,9 @@ $status = trim($statusOutput) === "blocked" ? "OFFLINE" : "ONLINE";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>INTRAHOME // RAD LAB</title>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="favicon.svg">
+    <link rel="stylesheet" href="fonts/fonts.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="<?= $status === 'OFFLINE' ? 'status-offline' : 'status-online' ?>">
@@ -44,10 +46,12 @@ $status = trim($statusOutput) === "blocked" ? "OFFLINE" : "ONLINE";
 <div class="app-layout">
     <aside class="sidebar">
         <div class="sidebar-header">
-            <div class="brand-container">
-                <div class="brand">INTRAHOME</div>
-                <div class="brand-sub" style="font-size: 10px; color: var(--neon-cyan); letter-spacing: 2px;">CORE SYSTEM</div>
-            </div>
+            <a href="?page=dashboard" style="text-decoration: none;">
+                <div class="brand-container">
+                    <div class="brand">INTRAHOME</div>
+                    <div class="brand-sub" style="font-size: 10px; color: var(--neon-cyan); letter-spacing: 2px;">CORE SYSTEM</div>
+                </div>
+            </a>
             <button class="mobile-menu-toggle" id="menuToggle">[ M E N U ]</button>
         </div>
         
