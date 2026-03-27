@@ -37,7 +37,7 @@ $status = trim($statusOutput) === "blocked" ? "OFFLINE" : "ONLINE";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>INTRAHOME // RAD LAB</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="stylesheet" href="fonts/fonts.css">
     <link rel="stylesheet" href="style.css">
 </head>
