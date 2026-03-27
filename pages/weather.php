@@ -140,6 +140,12 @@
         background: linear-gradient(90deg, var(--neon-green), var(--neon-yellow), #ffa500, var(--neon-pink), #ff0000);
         transition: width 0.5s ease-out;
     }
+
+    @media (max-width: 768px) {
+        .outdoor-temp {
+            font-size: 50px;
+        }
+    }
 </style>
 
 <?php
