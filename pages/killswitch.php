@@ -65,16 +65,17 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (actionInput.value === 'off') {
                 if (btnText) btnText.innerText = "PENDING...";
-                let counter = 120;
+                let counter = 300;
                 if (btnSub) btnSub.innerText = ">> T-" + counter + "s UNTIL SHOWTIME";
                 
                 const countdownInterval = setInterval(() => {
                     counter--;
-                    if (counter >= 0 && btnSub) {
-                        btnSub.innerText = ">> T-" + counter + "s UNTIL SHOWTIME";
-                    }
-                    if (counter < 0) {
-                        clearInterval(countdownInterval);
+                    if (btnSub) {
+                        if (counter >= 0) {
+                            btnSub.innerText = ">> T-" + counter + "s UNTIL SHOWTIME";
+                        } else {
+                            btnSub.innerText = ">> T+" + Math.abs(counter) + "s CONNECTING...";
+                        }
                     }
                 }, 1000);
             } else {

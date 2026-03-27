@@ -18,10 +18,10 @@ $message = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"])) {
     $action = $_POST["action"];
     if ($action === "on") {
-        shell_exec(__DIR__ . '/scripts/killswitch.sh on 2>&1');
+        shell_exec(__DIR__ . '/scripts/killswitch.sh on >/dev/null 2>&1 &');
         $message = "SYSTEM OFFLINE. VERBINDUNG GETRENNT.";
     } elseif ($action === "off") {
-        shell_exec(__DIR__ . '/scripts/killswitch.sh off 2>&1');
+        shell_exec(__DIR__ . '/scripts/killswitch.sh off >/dev/null 2>&1 &');
         $message = "SYSTEM ONLINE. VERBINDUNG WIEDERHERGESTELLT.";
     }
 }
