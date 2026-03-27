@@ -1,4 +1,12 @@
 <?php
+if (isset($_GET['api']) && $_GET['api'] === 'status') {
+    header('Content-Type: application/json');
+    $statusOutput = shell_exec(__DIR__ . '/scripts/killswitch.sh status 2>&1');
+    $status = trim($statusOutput) === "blocked" ? "OFFLINE" : "ONLINE";
+    echo json_encode(['status' => $status]);
+    exit;
+}
+
 $page = $_GET['page'] ?? 'dashboard';
 $allowed_pages = ['dashboard', 'killswitch', 'weather'];
 

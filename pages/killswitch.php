@@ -46,3 +46,45 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('.killswitch-widget form');
+    const button = form ? form.querySelector('button') : null;
+    const actionInput = form ? form.querySelector('input[name="action"]') : null;
+    
+    if (form && button && actionInput) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            button.disabled = true;
+            button.classList.add('is-loading');
+            
+            const btnText = button.querySelector('.btn-text');
+            const btnSub = button.querySelector('.btn-subtext');
+            if (btnText) btnText.innerText = "PROCESSING...";
+            if (btnSub) btnSub.innerText = ">> PLEASE WAIT";
+            
+            const formData = new FormData(form);
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            }).catch(err => console.error(err));
+            
+            const targetStatus = actionInput.value === 'on' ? 'OFFLINE' : 'ONLINE';
+            
+            const pollInterval = setInterval(() => {
+                fetch('?api=status')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === targetStatus) {
+                            clearInterval(pollInterval);
+                            window.location.reload();
+                        }
+                    })
+                    .catch(err => console.error("Polling error:", err));
+            }, 1500);
+        });
+    }
+});
+</script>
