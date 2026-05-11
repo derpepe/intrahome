@@ -91,17 +91,18 @@ $defcon_color = ($defcon === 3) ? 'var(--neon-pink)' : 'var(--neon-cyan)';
     }
     .dash-smokeping-figure {
         display: block;
-        background: #000;
-        border: 1px solid rgba(0, 255, 255, 0.15);
+        background: #f5f5f5;
+        border: 1px solid rgba(0, 255, 255, 0.25);
         border-radius: 3px;
         overflow: hidden;
         line-height: 0;
+        padding: 6px;
+        box-shadow: 0 0 12px rgba(0,255,255,0.08);
     }
     .dash-smokeping-figure img {
         display: block;
         width: 100%;
         height: auto;
-        filter: drop-shadow(0 0 6px rgba(0,255,255,0.15));
     }
     .dash-smokeping-meta {
         display: flex;
