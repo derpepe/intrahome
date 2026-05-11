@@ -19,6 +19,9 @@ $wpCode   = $initial['wp_status']['state_code'] ?? null;
 $wpLock   = $initial['wp_status']['lock_reason'] ?? null;
 $outside  = $initial['outside_temp'] ?? null;
 $data     = $initial['data'] ?? [];
+$rlSoll   = $initial['ruecklauf_hk1_soll'] ?? null;
+$we2State = $initial['we2_status']['state'] ?? 'Aus';
+$we2Active = !empty($initial['we2_status']['active']);
 
 function v(?array $point, string $key = 'value', $default = null) {
     return $point ? ($point[$key] ?? $default) : $default;
@@ -207,6 +210,50 @@ if ($wpCode !== null) {
     .heating-meta a { color: rgba(0,255,255,0.6); text-decoration: none; }
     .heating-meta a:hover { color: var(--neon-cyan); }
 
+    /* 2. Wärmeerzeuger Box */
+    .we2-box {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 18px 22px;
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 6px;
+        background: rgba(255,255,255,0.02);
+        transition: border-color 0.4s, background 0.4s, box-shadow 0.4s;
+    }
+    .we2-box.we2-active {
+        border-color: rgba(255, 130, 0, 0.55);
+        background: rgba(255, 90, 0, 0.07);
+        box-shadow: 0 0 18px rgba(255, 130, 0, 0.25);
+        animation: pulseOrange 2.5s infinite;
+    }
+    .we2-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #555;
+        box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
+    }
+    .we2-box.we2-active .we2-dot {
+        background: #ff9040;
+        box-shadow: 0 0 12px #ff9040, 0 0 0 3px rgba(255,144,64,0.2);
+    }
+    .we2-label {
+        color: rgba(255,255,255,0.5);
+        font-size: 11px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    .we2-value {
+        font-family: var(--font-heading);
+        font-size: 22px;
+        letter-spacing: 3px;
+        color: rgba(255,255,255,0.7);
+        text-transform: uppercase;
+    }
+    .we2-box.we2-active .we2-value { color: #ff9040; }
+
     .heating-error {
         background: rgba(255,0,80,0.08);
         border: 1px solid rgba(255,0,80,0.4);
@@ -255,6 +302,24 @@ if ($wpCode !== null) {
                 <div class="stat-val" id="heatingRuecklauf">
                     <?= isset($data['ruecklauf_hk1']) ? number_format(v($data['ruecklauf_hk1']), 1, ',', '.') . ' °C' : '–' ?>
                 </div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Schaltschwelle</div>
+                <div class="stat-val" id="heatingSchwelle">
+                    <?= $rlSoll !== null ? number_format($rlSoll, 1, ',', '.') . ' °C' : '–' ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Wärmeerzeuger (Strom) -->
+    <div class="heating-section">
+        <h3 class="heating-section-title">2. Wärmeerzeuger (Strom)</h3>
+        <div class="we2-box<?= $we2Active ? ' we2-active' : '' ?>" id="we2Box">
+            <div class="we2-dot"></div>
+            <div class="we2-text">
+                <div class="we2-label">Status</div>
+                <div class="we2-value" id="we2State"><?= htmlspecialchars($we2State, ENT_QUOTES) ?></div>
             </div>
         </div>
     </div>
@@ -399,6 +464,17 @@ if ($wpCode !== null) {
         if (vl) vl.textContent = dataMap.vorlauf ? (fmt(dataMap.vorlauf.value) + ' °C') : '–';
         const rl = document.getElementById('heatingRuecklauf');
         if (rl) rl.textContent = dataMap.ruecklauf_hk1 ? (fmt(dataMap.ruecklauf_hk1.value) + ' °C') : '–';
+        const schwelle = document.getElementById('heatingSchwelle');
+        if (schwelle) schwelle.textContent = (data.ruecklauf_hk1_soll !== null && data.ruecklauf_hk1_soll !== undefined) ? (fmt(data.ruecklauf_hk1_soll) + ' °C') : '–';
+
+        // 2. Wärmeerzeuger
+        const we2Box = document.getElementById('we2Box');
+        const we2StateEl = document.getElementById('we2State');
+        if (we2Box && we2StateEl) {
+            const w = data.we2_status || { state: 'Aus', active: false };
+            we2StateEl.textContent = w.state || 'Aus';
+            we2Box.classList.toggle('we2-active', !!w.active);
+        }
 
         // Cards
         document.querySelectorAll('.heating-card-value[data-key]').forEach(el => {

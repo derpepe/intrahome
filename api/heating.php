@@ -129,6 +129,39 @@ function parse_outside_temp(string $html): ?float {
 }
 
 /**
+ * Extrahiert die Rücklaufsoll-Temperatur des Heizkreises 1 (= WP-Schaltschwelle).
+ * Die <tr>-Zeile hat keine id, daher direkter Regex über das HTML.
+ */
+function parse_ruecklauf_soll_hk1(string $html): ?float {
+    if (preg_match('#Ruecklaufsolltemperatur\);document\.write\(HkEins\);.*?<td\s+align=[\'"]?right[\'"]?>([^<]+)</td>#s', $html, $m)) {
+        $v = trim($m[1]);
+        if (is_numeric($v)) return (float)$v;
+    }
+    return null;
+}
+
+/**
+ * Extrahiert den Status des 2. Wärmeerzeugers aus j_index.html (Variable z_hswstatus3).
+ * Codes 5=Heizen, 6=Schwimmbad, 7=Warmwasser; sonst inaktiv.
+ */
+function parse_we2_status(string $html): array {
+    $code = null;
+    if (preg_match('#var\s+z_hswstatus3\s*=\s*([0-9.\-]+)#', $html, $m)) {
+        $code = (int)round((float)$m[1] * 10);
+    }
+    $map = [
+        5 => 'Heizen',
+        6 => 'Schwimmbad',
+        7 => 'Warmwasser',
+    ];
+    return [
+        'state_code' => $code,
+        'state'      => ($code !== null && isset($map[$code])) ? $map[$code] : 'Aus',
+        'active'     => ($code !== null && isset($map[$code])),
+    ];
+}
+
+/**
  * Extrahiert WP-Status von j_index.html (Variablen z_hswstatusL und z_sp_wertL).
  * z_hswstatusL: 0=Aus, 1=Heizen, 2=?, 3=?, 4=Warmwasser, 5=Kühlen, 10=Abtauen, 11=Durchfluss, 30=Sperre
  */
@@ -206,11 +239,15 @@ if ($html_index !== null) {
     $html_index = decode_iso($html_index);
     $result['outside_temp'] = parse_outside_temp($html_index);
     $result['wp_status']    = parse_wp_status($html_index);
+    $result['we2_status']   = parse_we2_status($html_index);
 }
 
 if ($html_op !== null) {
     $html_op = decode_iso($html_op);
     $rows = parse_operating_data($html_op);
+
+    // Rücklaufsoll HK1 (= Schaltschwelle der WP) — Zeile hat keine id
+    $result['ruecklauf_hk1_soll'] = parse_ruecklauf_soll_hk1($html_op);
 
     // Datenpunkte für intrahome zusammenstellen.
     // Pro logischer Größe nehmen wir den ersten Wert > -50 (Sensor verbunden).
