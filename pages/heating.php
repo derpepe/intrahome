@@ -37,6 +37,12 @@ if ($wpCode !== null) {
 }
 ?>
 <style>
+    /* Heating-Seite hat viel Content, daher nicht vertikal zentrieren */
+    .component-container:has(.heating-grid) {
+        justify-content: flex-start !important;
+        padding-top: 20px;
+    }
+
     .heating-grid {
         width: 100%;
         display: flex;
