@@ -113,7 +113,7 @@ $ticksToSec = function ($v) {
 
 $statusMap = [
     1 => ['code' => 'UNKNOWN',       'label' => 'UNBEKANNT'],
-    2 => ['code' => 'ONLINE',        'label' => 'NETZBETRIEB'],
+    2 => ['code' => 'ONLINE',        'label' => 'NETZ­BETRIEB'],
     3 => ['code' => 'ON_BATTERY',    'label' => 'BATTERIE'],
     4 => ['code' => 'ON_SMART_BOOST','label' => 'BOOST'],
     5 => ['code' => 'TIMED_SLEEPING','label' => 'SCHLAFEND'],

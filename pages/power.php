@@ -328,7 +328,12 @@
                 // Status
                 var outState = d.status.output || {};
                 applyState(outState.code);
-                setText('power-state', outState.label || '--');
+                var stateEl = document.getElementById('power-state');
+                if (stateEl) {
+                    stateEl.innerHTML = (outState.label || '--')
+                        .replace(/[<>&"']/g, function(c){return ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'})[c];})
+                        .replace(/\u00AD/g, '&shy;');
+                }
 
                 // Hero – Output
                 setText('power-out-voltage', fmt(d.output.voltage.value, 'V'));

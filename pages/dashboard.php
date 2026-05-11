@@ -150,7 +150,10 @@ function fetchDashPower() {
                 const cap = d.battery.capacity.value;
                 const inV = d.input.voltage.value;
 
-                val.innerText = stateLabel || "--";
+                // stateLabel kann weiche Trennstriche (&shy;) enthalten
+                val.innerHTML = (stateLabel || "--")
+                    .replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]))
+                    .replace(/\u00AD/g, '&shy;');
                 sub.innerText =
                     (cap !== null ? "AKKU " + cap.toFixed(0) + "% // " : "") +
                     (inV !== null ? "IN " + inV.toFixed(0) + " V" : "");
