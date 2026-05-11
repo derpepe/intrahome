@@ -54,6 +54,12 @@ $defcon_color = ($defcon === 3) ? 'var(--neon-pink)' : 'var(--neon-cyan)';
 </div>
 
 <style>
+    /* Dashboard hat viel Content (Tiles + Smokeping), daher nicht vertikal zentrieren */
+    .component-container:has(.dashboard-grid) {
+        justify-content: flex-start !important;
+        padding-top: 20px;
+    }
+
     .dash-smokeping {
         margin-top: 25px;
         background: rgba(255, 255, 255, 0.02);
