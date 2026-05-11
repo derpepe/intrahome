@@ -10,5 +10,13 @@ return [
             'ch3' => 'Flur',
             'ch4' => 'Küche'
         ]
+    ],
+    'apc' => [
+        // Lokaler Abruf der APC USV per SNMP (PowerNet-MIB)
+        'host'            => '192.168.2.20',
+        'community'       => 'public',
+        'snmp_timeout_us' => 1500000, // 1.5s
+        'snmp_retries'    => 1,
+        'cache_seconds'   => 10,
     ]
 ];
