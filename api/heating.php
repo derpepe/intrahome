@@ -54,8 +54,31 @@ function fetch_url(string $url, int $timeout): ?string {
 }
 
 function decode_iso(string $s): string {
-    // Carel sendet ISO-8859-1, wir wollen UTF-8 für JSON
-    return mb_convert_encoding($s, 'UTF-8', 'ISO-8859-1');
+    // Carel sendet ISO-8859-1, wir wollen UTF-8 für JSON.
+    // Nutze mb_convert_encoding wenn verfügbar, sonst iconv, sonst utf8_encode-Äquivalent.
+    if (function_exists('mb_convert_encoding')) {
+        return mb_convert_encoding($s, 'UTF-8', 'ISO-8859-1');
+    }
+    if (function_exists('iconv')) {
+        $out = @iconv('ISO-8859-1', 'UTF-8//IGNORE', $s);
+        if ($out !== false) return $out;
+    }
+    // Fallback: manuelle ISO-8859-1 → UTF-8 Konvertierung
+    // (äquivalent zum entfernten utf8_encode())
+    $out = '';
+    $len = strlen($s);
+    for ($i = 0; $i < $len; $i++) {
+        $c = ord($s[$i]);
+        if ($c < 0x80) {
+            $out .= chr($c);
+        } elseif ($c < 0xC0) {
+            // 0x80–0xBF in ISO-8859-1 sind Steuerzeichen/Symbole
+            $out .= chr(0xC2) . chr($c);
+        } else {
+            $out .= chr(0xC3) . chr($c - 0x40);
+        }
+    }
+    return $out;
 }
 
 function clean_unit(string $u): string {
