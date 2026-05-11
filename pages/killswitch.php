@@ -45,9 +45,109 @@
             <span class="data-val"><?= $status === 'OFFLINE' ? 'LOCKED' : 'OPEN' ?></span>
         </div>
     </div>
+
+    <div class="smokeping-panel">
+        <div class="smokeping-header">
+            <h3 class="label">LATENCY // GOOGLE // 3H</h3>
+            <a class="smokeping-link" href="http://192.168.2.200/smokeping/?target=Internet" target="_blank" rel="noopener">DETAILS &gt;&gt;</a>
+        </div>
+        <a href="http://192.168.2.200/smokeping/?target=Internet" target="_blank" rel="noopener" class="smokeping-figure">
+            <img id="smokeping-img"
+                 src="http://192.168.2.200/smokeping/images/Internet/Google_last_10800.png"
+                 alt="Smokeping: Latency Google (letzte 3 Stunden)"
+                 loading="lazy">
+        </a>
+        <div class="smokeping-meta">
+            <span id="smokeping-updated">LAST UPDATE: --</span>
+            <span>SOURCE: smokeping@192.168.2.200</span>
+        </div>
+    </div>
 </div>
 
+<style>
+    .smokeping-panel {
+        margin-top: 30px;
+        width: 100%;
+        max-width: 900px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(0, 255, 255, 0.2);
+        border-radius: 4px;
+        padding: 20px;
+    }
+    .smokeping-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .smokeping-header .label {
+        color: var(--neon-cyan);
+        font-size: 14px;
+        letter-spacing: 3px;
+        margin: 0;
+    }
+    .smokeping-link {
+        font-size: 12px;
+        letter-spacing: 2px;
+        color: var(--neon-cyan);
+        text-decoration: none;
+        border: 1px solid rgba(0, 255, 255, 0.4);
+        padding: 4px 10px;
+        border-radius: 3px;
+        transition: background 0.2s, color 0.2s;
+    }
+    .smokeping-link:hover {
+        background: rgba(0, 255, 255, 0.1);
+        color: #fff;
+    }
+    .smokeping-figure {
+        display: block;
+        width: 100%;
+        background: #000;
+        border: 1px solid rgba(0, 255, 255, 0.15);
+        border-radius: 3px;
+        overflow: hidden;
+        line-height: 0;
+    }
+    .smokeping-figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+        filter: drop-shadow(0 0 6px rgba(0,255,255,0.15));
+    }
+    .smokeping-meta {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-size: 11px;
+        color: #555;
+        letter-spacing: 2px;
+        margin-top: 10px;
+    }
+</style>
+
 <script>
+// Smokeping-Graph: alle 60s neu laden (Cache-Buster), Update-Timestamp setzen
+(function() {
+    const img = document.getElementById('smokeping-img');
+    const updated = document.getElementById('smokeping-updated');
+    if (!img) return;
+    const baseSrc = img.getAttribute('src').split('?')[0];
+
+    function refreshSmokeping() {
+        img.src = baseSrc + '?_=' + Date.now();
+        if (updated) {
+            updated.innerText = 'LAST UPDATE: ' +
+                new Date().toLocaleTimeString('de-DE', { hour12: false });
+        }
+    }
+    refreshSmokeping();
+    setInterval(refreshSmokeping, 60000);
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.querySelector('.killswitch-widget form');
     const button = form ? form.querySelector('button') : null;
