@@ -18,5 +18,11 @@ return [
         'snmp_timeout_us' => 1500000, // 1.5s
         'snmp_retries'    => 1,
         'cache_seconds'   => 10,
+    ],
+    'heating' => [
+        // Carel pCOWeb-Karte der Wärmepumpe
+        'host'           => '192.168.2.220',
+        'timeout'        => 4,
+        'cache_seconds'  => 15,
     ]
 ];

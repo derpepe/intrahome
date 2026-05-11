@@ -28,6 +28,12 @@ $defcon_color = ($defcon === 3) ? 'var(--neon-pink)' : 'var(--neon-cyan)';
         <div class="card-value" id="dash-power">--</div>
         <div class="card-subtext" id="dash-power-sub">Fetching data...</div>
     </a>
+
+    <a href="?page=heating" class="dashboard-card heating-card-dash">
+        <h3 class="label">HEIZUNG</h3>
+        <div class="card-value" id="dash-heating">--</div>
+        <div class="card-subtext" id="dash-heating-sub">Fetching data...</div>
+    </a>
 </div>
 
 <div class="dash-smokeping">
@@ -179,6 +185,54 @@ function fetchDashPower() {
 
 fetchDashPower();
 setInterval(fetchDashPower, 30000);
+
+function fetchDashHeating() {
+    fetch('api/heating.php?_=' + Date.now(), { cache: 'no-store' })
+        .then(r => r.json())
+        .then(data => {
+            const card = document.querySelector('.heating-card-dash');
+            const val  = document.getElementById('dash-heating');
+            const sub  = document.getElementById('dash-heating-sub');
+            if (!card || !val || !sub) return;
+
+            if (!data || data.ok === false) {
+                val.innerText = 'ERR';
+                sub.innerText = (data && data.errors && data.errors.length) ? data.errors[0] : 'Fehler';
+                card.style.borderColor = 'var(--neon-pink)';
+                return;
+            }
+            const state = data.wp_status ? data.wp_status.state : '--';
+            const code  = data.wp_status ? data.wp_status.state_code : null;
+            const fmt = v => (v === null || v === undefined) ? '--' :
+                Number(v).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+            val.innerText = (state || '--').toUpperCase();
+            const out = data.outside_temp;
+            const vlObj = data.data && data.data.vorlauf;
+            const vl = vlObj ? vlObj.value : null;
+            sub.innerText =
+                (out !== null && out !== undefined ? 'AU\u00DFEN ' + fmt(out) + '\u00B0C' : '') +
+                (vl  !== null && vl  !== undefined ? ' // VL ' + fmt(vl) + '\u00B0C' : '');
+
+            // Color-Theme nach Status-Code
+            let color = '';
+            if (code === 0)               color = '';                           // idle → neutral
+            else if ([1,2,3].includes(code)) color = '#ff9040';                  // Heizen
+            else if (code === 4)          color = '#00c8ff';                    // Warmwasser
+            else if (code === 10)         color = 'var(--neon-yellow)';         // Abtauen
+            else if (code === 30)         color = 'var(--neon-pink)';           // Sperre
+            card.style.borderColor = color;
+        })
+        .catch(() => {
+            const val = document.getElementById('dash-heating');
+            const sub = document.getElementById('dash-heating-sub');
+            if (val) val.innerText = 'ERR';
+            if (sub) sub.innerText = 'NETWORK ERROR';
+        });
+}
+
+fetchDashHeating();
+setInterval(fetchDashHeating, 30000);
 
 // Smokeping-Graph (Dashboard): alle 60s neu laden (Cache-Buster)
 (function() {

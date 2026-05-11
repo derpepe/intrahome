@@ -8,7 +8,7 @@ if (isset($_GET['api']) && $_GET['api'] === 'status') {
 }
 
 $page = $_GET['page'] ?? 'dashboard';
-$allowed_pages = ['dashboard', 'killswitch', 'weather', 'power'];
+$allowed_pages = ['dashboard', 'killswitch', 'weather', 'power', 'heating'];
 
 if (!in_array($page, $allowed_pages)) {
     $page = 'dashboard';
@@ -67,6 +67,9 @@ $status = trim($statusOutput) === "blocked" ? "OFFLINE" : "ONLINE";
             </a>
             <a href="?page=power" class="nav-item <?= $page === 'power' ? 'active' : '' ?>">
                 <span class="nav-icon">[P]</span> POWER
+            </a>
+            <a href="?page=heating" class="nav-item <?= $page === 'heating' ? 'active' : '' ?>">
+                <span class="nav-icon">[H]</span> HEIZUNG
             </a>
         </nav>
         
