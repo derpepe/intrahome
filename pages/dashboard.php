@@ -34,6 +34,12 @@ $defcon_color = ($defcon === 3) ? 'var(--neon-pink)' : 'var(--neon-cyan)';
         <div class="card-value" id="dash-heating">--</div>
         <div class="card-subtext" id="dash-heating-sub">Fetching data...</div>
     </a>
+
+    <a href="igelcam.php" target="_blank" rel="noopener" class="dashboard-card igelcam-card-dash" id="dash-igelcam">
+        <h3 class="label">IGELCAM</h3>
+        <div class="card-value" id="dash-igelcam-val">--</div>
+        <div class="card-subtext" id="dash-igelcam-sub">Garten // Live-Stream &gt;&gt;</div>
+    </a>
 </div>
 
 <div class="dash-smokeping">
@@ -54,6 +60,10 @@ $defcon_color = ($defcon === 3) ? 'var(--neon-pink)' : 'var(--neon-cyan)';
 </div>
 
 <style>
+    .igelcam-card-dash.is-live  { border-color: var(--neon-green, #39ff14); }
+    .igelcam-card-dash.is-live .card-value { color: var(--neon-green, #39ff14); text-shadow: 0 0 15px var(--neon-green, #39ff14); }
+    .igelcam-card-dash.is-off .card-value  { color: #777; }
+
     /* Dashboard hat viel Content (Tiles + Smokeping), daher nicht vertikal zentrieren */
     .component-container:has(.dashboard-grid) {
         justify-content: flex-start !important;
@@ -257,5 +267,32 @@ setInterval(fetchDashHeating, 30000);
     }
     refresh();
     setInterval(refresh, 60000);
+})();
+
+// Igelcam: prüfen, ob ein Link hinterlegt ist (alle 60s)
+(function() {
+    const card = document.getElementById('dash-igelcam');
+    const val  = document.getElementById('dash-igelcam-val');
+    const sub  = document.getElementById('dash-igelcam-sub');
+    if (!card) return;
+    async function check() {
+        try {
+            const r = await fetch('igelcam.php?format=json&_=' + Date.now(), { cache: 'no-store' });
+            const j = await r.json();
+            card.classList.toggle('is-live', !!j.ok);
+            card.classList.toggle('is-off', !j.ok);
+            val.textContent = j.ok ? 'LIVE' : 'KEIN LINK';
+            if (j.ok && j.updated) {
+                const d = new Date(j.updated);
+                sub.textContent = 'Link vom ' + d.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' >>';
+            } else {
+                sub.textContent = '/opt/igelcam/current_url.txt leer';
+            }
+        } catch (e) {
+            val.textContent = 'ERR';
+        }
+    }
+    check();
+    setInterval(check, 60000);
 })();
 </script>

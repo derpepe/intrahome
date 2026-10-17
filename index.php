@@ -71,6 +71,9 @@ $status = trim($statusOutput) === "blocked" ? "OFFLINE" : "ONLINE";
             <a href="?page=heating" class="nav-item <?= $page === 'heating' ? 'active' : '' ?>">
                 <span class="nav-icon">[H]</span> HEIZUNG
             </a>
+            <a href="igelcam.php" class="nav-item" target="_blank" rel="noopener">
+                <span class="nav-icon">[I]</span> IGELCAM &#8599;
+            </a>
         </nav>
         
         <div class="sidebar-footer">
